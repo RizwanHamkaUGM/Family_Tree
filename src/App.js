@@ -6,7 +6,7 @@ axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 // Base URL untuk API
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "https://flask-test-silsilah.vercel.app";
 
 const App = () => {
   const [familyData, setFamilyData] = useState([]);
