@@ -1,0 +1,150 @@
+/* Menata kotak anggota keluarga secara umum */
+.family-member {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  margin-bottom: 40px;
+}
+
+.family-member > .family-box {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 2px solid #000;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  text-align: center;
+  width: auto;
+  min-width: 150px;
+  font-weight: bold;
+}
+
+/* Menambahkan garis penghubung vertikal */
+.family-member::before {
+  content: '';
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  width: 2px;
+  height: 30px;
+  background-color: black;
+  transform: translateX(-50%);
+}
+
+/* Menata kontainer anak-anak dan generasi yang lebih tua */
+.family-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;  /* Jarak antar generasi */
+  width: 100%;
+  position: relative;
+}
+
+/* Menata generasi sebelumnya (kakek, nenek) */
+.generation-above {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  position: relative;
+  width: 100%;
+}
+
+/* Garis Horizontal Penghubung antara Generasi */
+.generation-above::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: black;
+}
+
+/* Menambahkan garis vertikal untuk menghubungkan generasi yang lebih tua ke anak-anak */
+.generation-above > .family-member::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  width: 2px;
+  height: 20px;
+  background-color: black;
+  transform: translateX(-50%);
+}
+
+/* Kontainer untuk anak-anak (cucu) */
+.children-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;  /* Jarak antar anak */
+  flex-wrap: wrap;  /* Agar anak bisa berpindah baris jika banyak */
+  position: relative;
+  width: 100%;
+  margin-top: 40px;
+}
+
+/* Garis Horizontal Penghubung antara Orang Tua dan Anak */
+.children-container::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: black;
+}
+
+/* Garis Vertikal untuk Menghubungkan dengan Setiap Anak */
+.children-container > .family-member::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  width: 2px;
+  height: 20px;
+  background-color: black;
+  transform: translateX(-50%);
+}
+
+/* Responsif untuk memastikan tata letak tetap rapi pada berbagai ukuran layar */
+@media (max-width: 768px) {
+  .generation-above {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .family-container {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .family-member {
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .family-box {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+/* Responsif untuk ukuran layar lebih kecil dari 480px */
+@media (max-width: 480px) {
+  .children-container {
+    gap: 10px;
+  }
+
+  .family-member {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .family-box {
+    width: 80%;
+  }
+}
