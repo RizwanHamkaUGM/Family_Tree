@@ -63,36 +63,43 @@ const App = () => {
   };
 
   const addFamilyMember = async () => {
-    if (!newMember.name || !newMember.anggota) {
-      alert("Please fill in required fields (Name and Anggota)");
-      return;
-    }
+  // Validasi: Pastikan semua field yang wajib diisi sudah terisi
+  if (!newMember.id) {
+    alert("Please fill in the required field: ID");
+    return;
+  }
 
-    const existingIds = familyData.map(member => member.id);
-    if (existingIds.includes(newMember.id)) {
-      alert("Error: ID already exists. Please choose a different ID.");
-      return;
-    }
+  if (!newMember.name || !newMember.anggota) {
+    alert("Please fill in the required fields: Name and Anggota");
+    return;
+  }
 
-    setLoading(true);
-    try {
-      const response = await axios.post(`${API_BASE_URL}/family`, newMember, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      console.log('Add member response:', response);
-      alert("Family member added successfully!");
-      setNewMember({ id: "", name: "", anggota: "", parent1_id: null, parent2_id: null });
-      await fetchFamilyData();
-      await fetchFamilyTree();
-      setError(null);
-    } catch (error) {
-      handleApiError(error, 'adding family member');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Validasi: Periksa apakah ID sudah digunakan
+  const existingIds = familyData.map(member => member.id);
+  if (existingIds.includes(newMember.id)) {
+    alert("Error: ID already exists. Please choose a different ID.");
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const response = await axios.post(`${API_BASE_URL}/family`, newMember, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    console.log('Add member response:', response);
+    alert("Family member added successfully!");
+    setNewMember({ id: "", name: "", anggota: "", parent1_id: null, parent2_id: null });
+    await fetchFamilyData();
+    await fetchFamilyTree();
+    setError(null);
+  } catch (error) {
+    handleApiError(error, 'adding family member');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const updateMember = async () => {
     if (!editingMember.name || !editingMember.anggota) {
@@ -186,59 +193,42 @@ const App = () => {
       </div>
     );
   }
+  const modalStyle = {
+    position: 'fixed',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    backgroundColor: 'white',
+    padding: '20px',
+    borderRadius: '15px',
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.2)',
+    width: '90%',
+    maxWidth: '500px',
+    zIndex: 1000,
+  };
 
   return (
-    <div
-      style={{
-        padding: "20px",
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
-        backgroundColor: "#F9FAFC",
-        color: "#333",
-        minHeight: "100vh",
-      }}
-    >
+    <div style={{ padding: "20px", fontFamily: "sans-serif", backgroundColor: "#e6f9ff", color: "#333", minHeight: "100vh" }}>
+
       <header style={{ marginBottom: "20px", textAlign: "center" }}>
-        <h1 style={{ color: "#007AFF" }}>Family Tree</h1>
-        <p style={{ fontSize: "14px", color: "#6B7280" }}>Manage and visualize your family relationships</p>
+        <h1 style={{ color: "#007AFF", fontSize: "2.5em" }}>SILSILAH KELUARGA!</h1>
+        <p style={{ fontSize: "1.2em", color: "#555" }}>Manage and visualize your family relationships</p>
       </header>
 
-      {error && (
-        <div style={{ 
-          padding: "10px", 
-          backgroundColor: "#FEE2E2", 
-          border: "1px solid #EF4444", 
-          borderRadius: "8px",
-          marginBottom: "20px",
-          color: "#B91C1C" 
-        }}>
-          {error}
-        </div>
-      )}
+      {/* Error Handling */}
+      {error && <div style={{ ...alertStyle, backgroundColor: "#FEE2E2", color: "#B91C1C" }}>{error}</div>}
 
       {/* Add Member Form */}
-      <section
-        style={{
-          marginBottom: "20px",
-          backgroundColor: "white",
-          borderRadius: "15px",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-          padding: "20px",
-        }}
-      >
-        <h2 style={{ color: "#007AFF", marginBottom: "10px" }}>Add New Family Member</h2>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            addFamilyMember();
-          }}
-          style={{ display: "grid", gap: "10px" }}
-        >
+      <section style={sectionStyle}>
+        <h2 style={sectionHeaderStyle}>Tambah Data Keluarga</h2>
+        <form onSubmit={(e) => { e.preventDefault(); addFamilyMember(); }} style={{ display: "grid", gap: "10px" }}>
           <input
             type="text"
-            placeholder="ID"
+            placeholder="ID (wajib diisi)"
             value={newMember.id}
             onChange={(e) => setNewMember({ ...newMember, id: parseInt(e.target.value) })}
             style={inputStyle}
+            required
           />
           <input
             type="text"
@@ -270,11 +260,7 @@ const App = () => {
             onChange={(e) => setNewMember({ ...newMember, parent2_id: e.target.value ? parseInt(e.target.value) : null })}
             style={inputStyle}
           />
-          <button
-            type="submit"
-            style={buttonStyle}
-            disabled={loading}
-          >
+          <button type="submit" style={buttonStyle} disabled={loading}>
             {loading ? 'Adding...' : 'Add Member'}
           </button>
         </form>
@@ -282,7 +268,7 @@ const App = () => {
 
       {/* Family Members Table */}
       <section>
-        <h2 style={{ color: "#007AFF" }}>Family Members</h2>
+        <h2 style={sectionHeaderStyle}>Anggota Keluarga</h2>
         <div style={{ overflowX: 'auto' }}>
           <table style={tableStyle}>
             <thead>
@@ -300,25 +286,13 @@ const App = () => {
                   <td style={tableCellStyle}>{member.name}</td>
                   <td style={tableCellStyle}>{member.anggota}</td>
                   <td style={tableCellStyle}>
-                    <button
-                      style={actionButtonStyle}
-                      onClick={() => fetchRelationships(member.id)}
-                      disabled={loading}
-                    >
+                    <button style={actionButtonStyle} onClick={() => fetchRelationships(member.id)} disabled={loading}>
                       View Relationships
                     </button>
-                    <button
-                      style={actionButtonStyle}
-                      onClick={() => setEditingMember(member)}
-                      disabled={loading}
-                    >
+                    <button style={actionButtonStyle} onClick={() => setEditingMember(member)} disabled={loading}>
                       Edit
                     </button>
-                    <button
-                      style={{ ...actionButtonStyle, backgroundColor: '#DC2626' }}
-                      onClick={() => deleteMember(member.id)}
-                      disabled={loading}
-                    >
+                    <button style={{ ...actionButtonStyle, backgroundColor: '#DC2626' }} onClick={() => deleteMember(member.id)} disabled={loading}>
                       Delete
                     </button>
                   </td>
@@ -329,25 +303,13 @@ const App = () => {
         </div>
       </section>
 
+      {/* Relationships */}
       {selectedMember && (
-        <section style={{ 
-          marginTop: "20px",
-          backgroundColor: "white",
-          borderRadius: "15px",
-          padding: "20px",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
-        }}>
-          <h2 style={{ color: "#007AFF", marginBottom: "15px" }}>Relationships</h2>
+        <section style={sectionStyle}>
+          <h2 style={sectionHeaderStyle}>Relationships</h2>
           <ul style={{ listStyle: 'none', padding: 0 }}>
             {relationships.map((relation) => (
-              <li 
-                key={relation.id}
-                style={{
-                  padding: "10px",
-                  borderBottom: "1px solid #E5E7EB",
-                  fontSize: "14px"
-                }}
-              >
+              <li key={relation.id} style={{ padding: "10px", borderBottom: "1px solid #E5E7EB", fontSize: "14px" }}>
                 {relation.name}: {relation.relationship}
               </li>
             ))}
@@ -357,72 +319,18 @@ const App = () => {
 
       {/* Edit Member Modal */}
       {editingMember && (
-        <section style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          backgroundColor: 'white',
-          padding: '20px',
-          borderRadius: '15px',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-          zIndex: 1000,
-          width: '90%',
-          maxWidth: '500px'
-        }}>
-          <h2 style={{ color: "#007AFF", marginBottom: "15px" }}>Edit Member</h2>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              updateMember();
-            }}
-            style={{ display: "grid", gap: "10px" }}
-          >
-            <input
-              type="text"
-              placeholder="Name"
-              value={editingMember.name}
-              onChange={(e) => setEditingMember({ ...editingMember, name: e.target.value })}
-              style={inputStyle}
-              required
-            />
-            <input
-              type="text"
-              placeholder="Anggota"
-              value={editingMember.anggota}
-              onChange={(e) => setEditingMember({ ...editingMember, anggota: e.target.value })}
-              style={inputStyle}
-              required
-            />
-            <input
-              type="text"
-              placeholder="Parent 1 ID"
-              value={editingMember.parent1_id || ""}
-              onChange={(e) => setEditingMember({ ...editingMember, parent1_id: e.target.value ? parseInt(e.target.value) : null })}
-              style={inputStyle}
-            />
-            <input
-              type="text"
-              placeholder="Parent 2 ID"
-              value={editingMember.parent2_id || ""}
-              onChange={(e) => setEditingMember({ ...editingMember, parent2_id:e.target.value ? parseInt(e.target.value) : null })}
-              style={inputStyle}
-            />
+        <section style={modalStyle}>
+          <h2 style={sectionHeaderStyle}>Edit Member</h2>
+          <form onSubmit={(e) => { e.preventDefault(); updateMember(); }} style={{ display: "grid", gap: "10px" }}>
+            <input type="text" placeholder="Name" value={editingMember.name} onChange={(e) => setEditingMember({ ...editingMember, name: e.target.value })} style={inputStyle} required />
+            <input type="text" placeholder="Anggota" value={editingMember.anggota} onChange={(e) => setEditingMember({ ...editingMember, anggota: e.target.value })} style={inputStyle} required />
+            <input type="text" placeholder="Parent 1 ID" value={editingMember.parent1_id || ""} onChange={(e) => setEditingMember({ ...editingMember, parent1_id: e.target.value ? parseInt(e.target.value) : null })} style={inputStyle} />
+            <input type="text" placeholder="Parent 2 ID" value={editingMember.parent2_id || ""} onChange={(e) => setEditingMember({ ...editingMember, parent2_id: e.target.value ? parseInt(e.target.value) : null })} style={inputStyle} />
             <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-              <button
-                type="submit"
-                style={buttonStyle}
-                disabled={loading}
-              >
+              <button type="submit" style={buttonStyle} disabled={loading}>
                 {loading ? 'Updating...' : 'Update Member'}
               </button>
-              <button
-                type="button"
-                style={{ ...buttonStyle, backgroundColor: '#6B7280' }}
-                onClick={() => setEditingMember(null)}
-              >
-                Cancel
-              </button>
+              <button type="button" style={{ ...buttonStyle, backgroundColor: '#6B7280' }} onClick={() => setEditingMember(null)}>Cancel</button>
             </div>
           </form>
         </section>
@@ -431,26 +339,32 @@ const App = () => {
       {/* Family Tree Visualization */}
       {treeUrl && (
         <section style={{ marginTop: "20px", textAlign: "center" }}>
-          <h2 style={{ color: "#007AFF", marginBottom: "15px" }}>Family Tree Visualization</h2>
-          <img 
-            src={treeUrl} 
-            alt="Family Tree" 
-            style={{ 
-              maxWidth: "100%", 
-              height: "auto", 
-              borderRadius: "8px",
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" 
-            }} 
-          />
+          <h2 style={sectionHeaderStyle}>Visualisasi Silsilah</h2>
+          <img src={treeUrl} alt="Family Tree" style={{ maxWidth: "100%", height: "auto", borderRadius: "8px", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" }} />
         </section>
       )}
+
     </div>
   );
 };
 
-// Styles
+// Update styles to improve the overall UI
+const sectionStyle = {
+  marginBottom: "20px",
+  backgroundColor: "white",
+  borderRadius: "15px",
+  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+  padding: "20px",
+};
+
+const sectionHeaderStyle = {
+  color: "#007AFF",
+  marginBottom: "10px",
+};
+
+// Other styles remain the same
 const inputStyle = {
-  padding: "8px 12px",
+  padding: "10px 15px",
   borderRadius: "6px",
   border: "1px solid #D1D5DB",
   fontSize: "14px",
@@ -459,7 +373,7 @@ const inputStyle = {
 };
 
 const buttonStyle = {
-  padding: "8px 16px",
+  padding: "10px 15px",
   backgroundColor: "#007AFF",
   color: "white",
   border: "none",
@@ -506,6 +420,13 @@ const actionButtonStyle = {
   fontSize: "12px",
   marginRight: "4px",
   transition: "background-color 0.2s",
+};
+
+// Error alert style
+const alertStyle = {
+  padding: "10px",
+  borderRadius: "8px",
+  marginBottom: "20px",
 };
 
 export default App;
